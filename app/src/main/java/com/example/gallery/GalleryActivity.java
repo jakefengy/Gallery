@@ -20,10 +20,10 @@ import java.util.List;
 
 public class GalleryActivity extends AppCompatActivity {
 
-    private String GralleryType;
-    private static final String TypeLine = "line";
-    private static final String TypeGrid = "grid";
-    private static final String TypeStaggered = "staggered";
+    private String GalleryType = TypeLine;
+    public static final String TypeLine = "line";
+    public static final String TypeGrid = "grid";
+    public static final String TypeStaggered = "staggered";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,16 +36,16 @@ public class GalleryActivity extends AppCompatActivity {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
                     case R.id.radio_line:
-                        GralleryType = TypeLine;
+                        GalleryType = TypeLine;
                         break;
                     case R.id.radio_grid:
-                        GralleryType = TypeGrid;
+                        GalleryType = TypeGrid;
                         break;
                     case R.id.radio_staggered:
-                        GralleryType = TypeStaggered;
+                        GalleryType = TypeStaggered;
                         break;
                     default:
-                        GralleryType = TypeLine;
+                        GalleryType = TypeLine;
                         break;
                 }
             }
@@ -95,14 +95,11 @@ public class GalleryActivity extends AppCompatActivity {
         folderAdapter.setOnItemClickListener(new ImageFolderAdapter.OnItemClickListener() {
             @Override
             public void onClick(View view, BizImageFolder bizImageFolder) {
-                Intent intent = new Intent();
-                if (GralleryType.equals(TypeLine)) {
-
-                } else if (GralleryType.equals(TypeGrid)) {
-
-                } else if (GralleryType.equals(TypeStaggered)) {
-
-                }
+                Intent intent = new Intent(GalleryActivity.this, ShowActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("GalleryType", GalleryType);
+                intent.putExtra("FolderName", bizImageFolder.getFolderPath());
+                startActivity(intent);
             }
         });
 
