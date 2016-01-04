@@ -18,15 +18,18 @@
 package com.example.gallery;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.example.gallery.utils.BizImage;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,20 +43,23 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private final Context mActivity;
     private List<BizImage> mDataSource;
 
+    private Bitmap failBitmap;
+
     private DisplayImageOptions options;
 
     public ImageAdapter(Context context, List<BizImage> images) {
         this.mActivity = context;
         this.mDataSource = images == null ? new ArrayList<BizImage>() : images;
+        this.failBitmap = BitmapFactory.decodeResource(mActivity.getResources(), R.mipmap.ic_launcher);
 
-        options = new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.mipmap.ic_launcher)
+        this.options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.mipmap.ic_launcher)
                 .showImageOnFail(R.mipmap.ic_launcher)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
-                .considerExifParams(true)
+                .bitmapConfig(Bitmap.Config.RGB_565)
                 .build();
+
     }
 
     @Override
@@ -64,10 +70,37 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         BizImage image = mDataSource.get(position);
 
-        ImageLoader.getInstance().displayImage("file://" + image.getImagePath(), holder.vAvatar, options);
+        ImageLoader.getInstance().displayImage("file://" + image.getImagePath(), holder.vAvatar, options, new ImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+                holder.vAvatar.setImageWidth(failBitmap.getWidth());
+                holder.vAvatar.setImageHeight(failBitmap.getHeight());
+                holder.vAvatar.setImageBitmap(failBitmap);
+            }
+
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                holder.vAvatar.setImageWidth(failBitmap.getWidth());
+                holder.vAvatar.setImageHeight(failBitmap.getHeight());
+                holder.vAvatar.setImageBitmap(failBitmap);
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                holder.vAvatar.setImageWidth(loadedImage.getWidth());
+                holder.vAvatar.setImageHeight(loadedImage.getHeight());
+                holder.vAvatar.setImageBitmap(loadedImage);
+            }
+
+            @Override
+            public void onLoadingCancelled(String imageUri, View view) {
+
+            }
+        });
+
     }
 
     @Override
@@ -82,20 +115,13 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView vAvatar;
+        ScaleImageView vAvatar;
 
         public ViewHolder(View view) {
             super(view);
-            vAvatar = (ImageView) view.findViewById(R.id.list_item);
+            vAvatar = (ScaleImageView) view.findViewById(R.id.list_item);
         }
 
     }
 
-    public void updateSource(List<BizImage> data) {
-        if (data != null && data.size() > 0) {
-            mDataSource.clear();
-            mDataSource.addAll(data);
-            notifyDataSetChanged();
-        }
-    }
 }

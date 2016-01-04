@@ -12,11 +12,16 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import com.example.gallery.utils.GalleryUtils;
 
 /**
- * Created by lvxia on 2015-12-31.
+ * show gallery images
  */
 public class ShowActivity extends AppCompatActivity {
 
+    // key
     private String galleryType, folderName;
+
+    // view
+    private RecyclerView recyclerView;
+    private ImageAdapter imageAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -27,7 +32,8 @@ public class ShowActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_show);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.show);
+        // init view
+        recyclerView = (RecyclerView) findViewById(R.id.show);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -40,9 +46,12 @@ public class ShowActivity extends AppCompatActivity {
             recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         }
 
-        ImageAdapter imageAdapter = new ImageAdapter(ShowActivity.this, GalleryUtils.getImageByFolder(folderName));
+        imageAdapter = new ImageAdapter(ShowActivity.this, GalleryUtils.getImageByFolder(folderName));
         recyclerView.setAdapter(imageAdapter);
 
-
     }
+
+
+
+
 }
